@@ -86,6 +86,7 @@
 <input type="text" id="messageSending" placeholder="Type your message here!"> <br>
 <input type="text" id="sender" placeholder="Your name!"> <br>
 <button onclick="send()" class="button" id="sendButton"><span>Send!</span></button>
+<small>Version 1.2.1</small>
 <script>
     function writeData(message, sender) {
         database.ref("messages/").remove()
