@@ -115,6 +115,8 @@
                 keys = 'Nobody\'s sent any messages yet.'
                 document.getElementById("message").innerHTML = keys
             }
+
+            setTimeout(function() {readData()}, 1000)
             
         });
     }
