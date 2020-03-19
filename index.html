@@ -104,7 +104,7 @@
     }
     
     function readData() {
-        return database.ref('/messages/').on('value').then(function(snapshot) {
+        return database.ref('/messages/').once('value').then(function(snapshot) {
             var messages = (snapshot.val()) || 'Nobody\'s sent any messages yet.';
             var keys = ""
             if (messages != 'Nobody\'s sent any messages yet.') {
