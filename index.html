@@ -22,10 +22,22 @@
         firebase.initializeApp(firebaseConfig);
         var database = firebase.database();
     </script>
+
     <style>
         .disabled {
             opacity: 0.2;
             cursor: not-allowed;
+            display: inline-block;
+            border-radius: 4px;
+            background-color: #f4511e;
+            border: none;
+            color: #FFFFFF;
+            text-align: center;
+            font-size: 10px;
+            padding: 10px;
+            width: 146px;
+            transition: all 0.5s;
+            margin: 5px;
         }
 
         .button {
@@ -68,17 +80,13 @@
             opacity: 1;
             right: 0;
         }
-
-        p {
-            
-        }
     </style>
 </head>
 <p id="message"></p>
 <form action = "ADSFADSFAS">
-    <input type="text" id="messageSending" placeholder="Type your message here!" required> <br>
+    <input type="text" id="messageSending" placeholder="Type your message here!"> <br>
     <input type="text" id="sender" placeholder="Your name!" required> <br>
-    <button onclick="send()" class="button"><span>Send!</span></button>
+    <button onclick="send()" class="button" id="sendButton"><span>Send!</span></button>
 </form>
 <script>
     function writeData(message, sender) {
@@ -111,9 +119,10 @@
     }
 
     function send() {
-        var sends = localStorage.getItem("numOfSends")
+        var sends = localStorage.getItem("sendsLeft")
         sends = parseInt(sends)
-        if (sends <= 10) {
+        console.log(sends)
+        if (sends > 0) {
             var message = document.getElementById("messageSending").value
             var sender = document.getElementById("sender").value
             
@@ -124,7 +133,7 @@
                 alert("Please enter all your information")
             } else {
                 writeData(message, sender)
-                localStorage.setItem("numOfSends", toString(sends))
+                localStorage.setItem("sendsLeft", toString(sends - 1))
                 document.getElementById("messageSending").value = ""
             }
             
@@ -137,11 +146,42 @@
         }
     }
     
-    if (localStorage.getItem("numOfSends")) {
-        if (localStorage.getItem("numOfSends") == 1) {
-            alert("You have " + localStorage.getItem("numOfSends") + " send left.")
+    function init() {
+        console.log(localStorage.getItem("sendsLeft"))
+        if (localStorage.getItem("sendsLeft") != "[object Undefined]" && localStorage.getItem("sendsLeft") != null && localStorage.getItem("sendsLeft") != undefined && localStorage.getItem("sendsLeft") != NaN) {
+            if (localStorage.getItem("sendsLeft") == "1") {
+                alert("You have 1 send left.")
+                document.getElementById("sendButton").innerHTML = "You have 1 send left."
+                document.getElementById("sendButton").style = "cursor: not-allowed"
+                document.getElementById("sendButton").onclick = function() {}
+                setTimeout(function() {
+                    document.getElementById("sendButton").innerHTML = "<span>Send</span>"
+                    document.getElementById("sendButton").style = "cursor: pointer"
+                    document.getElementById("sendButton").onclick = function() {send()}
+                }, 2500)
+            } else if (localStorage.getItem("sendsLeft") == "0") {
+                document.getElementById("sendButton").className = "disabled"
+                document.getElementById("sendButton").innerHTML = "Max send limit reached."
+            } else {
+                document.getElementById("sendButton").innerHTML = "You have " + (parseInt(localStorage.getItem("sendsLeft"))) + " sends left."
+                document.getElementById("sendButton").style = "cursor: not-allowed"
+                document.getElementById("sendButton").onclick = function() {}
+                setTimeout(function() {
+                    document.getElementById("sendButton").innerHTML = "<span>Send</span>"
+                    document.getElementById("sendButton").style = "cursor: pointer"
+                    document.getElementById("sendButton").onclick = function() {send()}
+                }, 2500)
+            }
+
+            if (localStorage.getItem("sender")) {
+                    document.getElementById("sender").hidden = true
+                }
         } else {
-            alert("You have " + localStorage.getItem("numOfSends") + " sends left.")
+            localStorage.setItem("sendsLeft", "10")
+            location.reload()
         }
+        readData()
     }
+    
+    init()
 </script>
