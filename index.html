@@ -1,1 +1,147 @@
-adsfasdfas
+<head>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-database.js"></script>
+
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyC4XkzBGnzODC9TuK2lJkunJ8cixFKlCnU",
+            authDomain: "wsquarepa-chat-engine.firebaseapp.com",
+            databaseURL: "https://wsquarepa-chat-engine.firebaseio.com",
+            projectId: "wsquarepa-chat-engine",
+            storageBucket: "wsquarepa-chat-engine.appspot.com",
+            messagingSenderId: "810785377587",
+            appId: "1:810785377587:web:e338243cfb804629960246",
+            measurementId: "G-TDQWJEV4EN"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        var database = firebase.database();
+    </script>
+    <style>
+        .disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        .button {
+            display: inline-block;
+            border-radius: 4px;
+            background-color: #f4511e;
+            border: none;
+            color: #FFFFFF;
+            text-align: center;
+            font-size: 10px;
+            padding: 10px;
+            width: 146px;
+            transition: all 0.5s;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .button span {
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            transition: 0.5s;
+        }
+
+        .button span:after {
+            /* content: '\00bb'; */
+            content: "-->";
+            position: absolute;
+            opacity: 0;
+            top: 0;
+            right: -20px;
+            transition: 0.5s;
+        }
+
+        .button:hover span {
+            padding-right: 25px;
+        }
+
+        .button:hover span:after {
+            opacity: 1;
+            right: 0;
+        }
+
+        p {
+            
+        }
+    </style>
+</head>
+<p id="message"></p>
+<form action = "ADSFADSFAS">
+    <input type="text" id="messageSending" placeholder="Type your message here!" required> <br>
+    <input type="text" id="sender" placeholder="Your name!" required> <br>
+    <button onclick="send()" class="button"><span>Send!</span></button>
+</form>
+<script>
+    function writeData(message, sender) {
+        database.ref("messages/").remove()
+        database.ref('messages/' + message).set({
+            sender: sender
+        });
+        localStorage.setItem("sender", sender)
+        setTimeout(function() {
+            document.getElementById("sender").hidden = true
+            readData()
+        }, 10)
+    }
+    
+    function readData() {
+        return database.ref('/messages/').once('value').then(function(snapshot) {
+            var messages = (snapshot.val()) || 'Nobody\'s sent any messages yet.';
+            console.log(messages);
+            var keys = ""
+            if (messages != 'Nobody\'s sent any messages yet.') {
+                keys = Object.keys(messages)
+                var sender = messages[keys[0]]["sender"]
+                document.getElementById("message").innerHTML = keys + " <br> Sent by:" + sender
+            } else {
+                keys = 'Nobody\'s sent any messages yet.'
+                document.getElementById("message").innerHTML = keys
+            }
+            
+        });
+    }
+
+    function send() {
+        var sends = localStorage.getItem("numOfSends")
+        sends = parseInt(sends)
+        if (sends <= 10) {
+            var message = document.getElementById("messageSending").value
+            var sender = document.getElementById("sender").value
+            
+            if (localStorage.getItem("sender")) {
+                sender = localStorage.getItem("sender")
+            }
+            if (message == "" || sender == "") {
+                alert("Please enter all your information")
+            } else {
+                writeData(message, sender)
+                localStorage.setItem("numOfSends", toString(sends))
+                document.getElementById("messageSending").value = ""
+            }
+            
+            if (localStorage.getItem("sender")) {
+                document.getElementById("sender").hidden = true
+            }
+            readData()
+        } else {
+            alert("You've reached your max send limit.")
+        }
+    }
+    
+    if (localStorage.getItem("numOfSends")) {
+        if (localStorage.getItem("numOfSends") == 1) {
+            alert("You have " + localStorage.getItem("numOfSends") + " send left.")
+        } else {
+            alert("You have " + localStorage.getItem("numOfSends") + " sends left.")
+        }
+    }
+</script>
