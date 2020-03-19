@@ -82,16 +82,20 @@
         }
     </style>
 </head>
-<p id="message"></p>
+<p id="message">An Error Occured when loading this element.</p>
 <input type="text" id="messageSending" placeholder="Type your message here!"> <br>
 <input type="text" id="sender" placeholder="Your name!"> <br>
 <button onclick="send()" class="button" id="sendButton"><span>Send!</span></button>
 <script>
     function writeData(message, sender) {
         database.ref("messages/").remove()
-        database.ref('messages/' + message).set({
-            sender: sender
-        });
+        try {
+            database.ref('messages/' + message).set({
+                sender: sender
+            });
+        } catch(e) {
+            document.getElementById("message").innerHTML = 'Your message  must be non-empty strings and can\'t contain ".", "#", "$", "[", or "]"'
+        }
         localStorage.setItem("sender", sender)
         setTimeout(function() {
             document.getElementById("sender").hidden = true
@@ -100,9 +104,8 @@
     }
     
     function readData() {
-        return database.ref('/messages/').once('value').then(function(snapshot) {
+        return database.ref('/messages/').on('value').then(function(snapshot) {
             var messages = (snapshot.val()) || 'Nobody\'s sent any messages yet.';
-            console.log(messages);
             var keys = ""
             if (messages != 'Nobody\'s sent any messages yet.') {
                 keys = Object.keys(messages)
@@ -119,7 +122,7 @@
     function send() {
         var sends = localStorage.getItem("sendsLeft")
         sends = parseInt(sends)
-        console.log(sends)
+        
         if (sends > 0) {
             var message = document.getElementById("messageSending").value
             var sender = document.getElementById("sender").value
@@ -131,7 +134,9 @@
                 alert("Please enter all your information")
             } else {
                 writeData(message, sender)
-                localStorage.setItem("sendsLeft", toString(sends - 1))
+                sends = (parseInt(sends) - 1).toString()
+                localStorage.setItem("sendsLeft", sends)
+                console.log(sends)
                 document.getElementById("messageSending").value = ""
             }
             
@@ -163,7 +168,7 @@
                 var nextDate = localStorage.getItem("resetTime")
                 if (nextDate != "[object Undefined]" && nextDate != null && nextDate != undefined && nextDate != NaN) {
                     if (currentdate >= nextDate) {
-                        localStorage.setItem("sendsLeft", "10")
+                        localStorage.setItem("sendsLeft", "60")
                         localStorage.removeItem("resetTime")
                         location.reload()
                     }
@@ -198,7 +203,7 @@
                 document.getElementById("sender").hidden = true
             }
         } else {
-            localStorage.setItem("sendsLeft", "10")
+            localStorage.setItem("sendsLeft", "60")
             location.reload()
         }
         
