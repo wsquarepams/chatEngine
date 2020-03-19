@@ -83,11 +83,9 @@
     </style>
 </head>
 <p id="message"></p>
-<form action = "ADSFADSFAS">
-    <input type="text" id="messageSending" placeholder="Type your message here!"> <br>
-    <input type="text" id="sender" placeholder="Your name!" required> <br>
-    <button onclick="send()" class="button" id="sendButton"><span>Send!</span></button>
-</form>
+<input type="text" id="messageSending" placeholder="Type your message here!"> <br>
+<input type="text" id="sender" placeholder="Your name!"> <br>
+<button onclick="send()" class="button" id="sendButton"><span>Send!</span></button>
 <script>
     function writeData(message, sender) {
         database.ref("messages/").remove()
@@ -150,6 +148,7 @@
         console.log(localStorage.getItem("sendsLeft"))
         if (localStorage.getItem("sendsLeft") != "[object Undefined]" && localStorage.getItem("sendsLeft") != null && localStorage.getItem("sendsLeft") != undefined && localStorage.getItem("sendsLeft") != NaN) {
             if (localStorage.getItem("sendsLeft") == "1") {
+                readData()
                 alert("You have 1 send left.")
                 document.getElementById("sendButton").innerHTML = "You have 1 send left."
                 document.getElementById("sendButton").style = "cursor: not-allowed"
@@ -160,9 +159,30 @@
                     document.getElementById("sendButton").onclick = function() {send()}
                 }, 2500)
             } else if (localStorage.getItem("sendsLeft") == "0") {
+                var currentdate = new Date().getTime();
+                var nextDate = localStorage.getItem("resetTime")
+                if (nextDate != "[object Undefined]" && nextDate != null && nextDate != undefined && nextDate != NaN) {
+                    if (currentdate >= nextDate) {
+                        localStorage.setItem("sendsLeft", "10")
+                        localStorage.removeItem("resetTime")
+                        location.reload()
+                    }
+                } else {
+                    const ONE_HOUR = 60 * 60 * 1000
+                    nextDate = currentdate + ONE_HOUR;
+                    console.log(currentdate)
+                    console.log(nextDate)
+                    localStorage.setItem("resetTime", nextDate)
+                    setInterval(function() {init()}, 1200000)
+                }
+
                 document.getElementById("sendButton").className = "disabled"
-                document.getElementById("sendButton").innerHTML = "Max send limit reached."
+                document.getElementById("sendButton").innerHTML = "Max send limit reached. <br> Try again in a hour."
+                document.getElementById("sendButton").onclick = function() {}
+                
+                
             } else {
+                readData()
                 document.getElementById("sendButton").innerHTML = "You have " + (parseInt(localStorage.getItem("sendsLeft"))) + " sends left."
                 document.getElementById("sendButton").style = "cursor: not-allowed"
                 document.getElementById("sendButton").onclick = function() {}
@@ -170,17 +190,18 @@
                     document.getElementById("sendButton").innerHTML = "<span>Send</span>"
                     document.getElementById("sendButton").style = "cursor: pointer"
                     document.getElementById("sendButton").onclick = function() {send()}
+                    
                 }, 2500)
             }
 
             if (localStorage.getItem("sender")) {
-                    document.getElementById("sender").hidden = true
-                }
+                document.getElementById("sender").hidden = true
+            }
         } else {
             localStorage.setItem("sendsLeft", "10")
             location.reload()
         }
-        readData()
+        
     }
     
     init()
