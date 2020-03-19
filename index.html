@@ -86,7 +86,7 @@
 <input type="text" id="messageSending" placeholder="Type your message here!"> <br>
 <input type="text" id="sender" placeholder="Your name!"> <br>
 <button onclick="send()" class="button" id="sendButton"><span>Send!</span></button> <br> <br>
-<small>Version 1.2.2</small>
+<small>Version 1.2.4</small>
 <script>
     function writeData(message, sender) {
         database.ref("messages/").remove()
@@ -146,9 +146,25 @@
             if (localStorage.getItem("sender")) {
                 document.getElementById("sender").hidden = true
             }
-            readData()
+            checkChancesLeft()
         } else {
             alert("You've reached your max send limit.")
+        }
+    }
+
+    function checkChancesLeft() {
+        if (localStorage.getItem("sendsLeft") == "0") {
+            var currentdate = new Date().getTime();
+            var nextDate = localStorage.getItem("resetTime")
+            const ONE_HOUR = 60 * 60 * 1000
+            nextDate = currentdate + ONE_HOUR;
+            console.log(currentdate)
+            console.log(nextDate)
+            localStorage.setItem("resetTime", nextDate)
+            setInterval(function() {init()}, 1200000)
+            document.getElementById("sendButton").className = "disabled"
+            document.getElementById("sendButton").innerHTML = "Max send limit reached. <br> Try again in a hour."
+            document.getElementById("sendButton").onclick = function() {}
         }
     }
     
