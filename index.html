@@ -114,7 +114,7 @@
             /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); */
             padding: 20px;
             text-align: center;
-            background-color: #fafafa;e: 25px;
+            background-color: #ffffff;e: 25px;
             font-size: 30px;
         }
 
@@ -125,18 +125,42 @@
             color: red
         }
 
+        .bottomAnchor {
+            position:fixed;
+            bottom:0px;
+            width:100%;
+            margin:0px;
+            background-color: #ffffff;
+        }
+
+        .topAnchor {
+            position:fixed;
+            top:0px;
+            width:100%;
+            margin:0px;
+            background-color: #ffffff;
+        }
+
+        .fullScreenWidth {
+            width: 100%
+        }
+
         * {
             box-sizing: border-box
         }
     </style>
 </head>
-<center> <h1>Chat with other people online</h1> </center>
-<div class="column" id="cards"></div>
-<input type="text" id="messageSending" placeholder="Type your message here!"> <br>
-<input type="text" id="sender" placeholder="Your name!"> <br>
-<button onclick="send()" class="button" id="sendButton"><span>Send!</span></button> <br> <br>
-<small id="version">Version Unknown</small> <br> 
-<small>Your message must be non-empty strings.</small>
+<body>
+    <center> <h1 class="topAnchor">Chat with other people online</h1> </center>
+    <div class="column" id="cards"></div>
+    <div class="bottomAnchor fullScreenWidth">
+        <input type="text" id="messageSending" placeholder="Type your message here!" class="fullScreenWidth"> <br>
+        <input type="text" id="sender" placeholder="Your name!"> <br>
+        <button onclick="send()" class="button fullScreenWidth" id="sendButton"><span>Send!</span></button> <br> <br>
+        <small id="version">Version Unknown</small> <br> 
+        <small>Your message must be non-empty strings.</small>
+    </div>
+</body>
 <script>
     var currentId = 0
     function writeData(message, sender) {
@@ -156,6 +180,9 @@
         database.ref('/messages/').on('value', function(snapshot) {
             var cards = document.getElementById("cards")
             cards.innerHTML = ""
+            var blockElement = document.createElement('div')
+            blockElement.style = "width:100%; height:37px"
+            cards.appendChild(blockElement)
             var messages = (snapshot.val()) || 'Nobody\'s sent any messages yet.';
             var keys = []
             if (messages != 'Nobody\'s sent any messages yet.') {
@@ -173,6 +200,9 @@
                     node.appendChild(theNodeInsideNode)
                     cards.appendChild(node)
                 }
+                var blockElement = document.createElement('div')
+                blockElement.style = "width:100%; height:136px"
+                cards.appendChild(blockElement)
                 currentId = parseInt(keys.length)
                 if (currentId == NaN || currentId == undefined) {
                     currentId = 0
@@ -182,6 +212,7 @@
                 cards.innerHTML = messages
                 currentId = 0
             }
+            window.scrollTo(0,document.body.scrollHeight);
         });
     }
 
