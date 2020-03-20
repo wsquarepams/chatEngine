@@ -94,13 +94,9 @@
 <script>
     function writeData(message, sender) {
         database.ref("messages/").remove()
-        try {
-            database.ref('messages/' + message).set({
-                sender: sender
-            });
-        } catch(e) {
-            document.getElementById("message").innerHTML = 'Your message must be non-empty strings and can\'t contain ".", "#", "$", "[", or "]"'
-        }
+        database.ref('messages/' + message).set({
+            sender: sender
+        });
         localStorage.setItem("sender", sender)
         setTimeout(function() {
             document.getElementById("sender").hidden = true
@@ -109,7 +105,7 @@
     }
     
     function readData() {
-        return database.ref('/messages/').once('value').then(function(snapshot) {
+        database.ref('/messages/').on('value', function(snapshot) {
             var messages = (snapshot.val()) || 'Nobody\'s sent any messages yet.';
             var keys = ""
             if (messages != 'Nobody\'s sent any messages yet.') {
@@ -121,7 +117,7 @@
                 document.getElementById("message").innerHTML = keys
             }
 
-            setTimeout(function() {readData()}, 1000)
+            //setTimeout(function() {readData()}, 1000)
             
         });
     }
@@ -233,4 +229,51 @@
     }
     
     init()
+</script>
+
+<script>
+    // a key map of allowed keys
+    var allowedKeys = {
+        37: 'left',
+        38: 'up',
+        39: 'right',
+        40: 'down',
+        114: 'r',
+        101: 'e',
+        115: 's',
+        116: 't'
+    };
+
+    // the 'official' Konami Code sequence
+    var konamiCode = ['up', 'up', 'down', 'down', 'left', 'right', 'left', 'right', 'r', 'e', 's', 'e', 't'];
+
+    // a variable to remember the 'position' the user has reached so far.
+    var konamiCodePosition = 0;
+
+    // add keydown event listener
+    document.addEventListener('keydown', function(e) {
+        // get the value of the key code from the key map
+        var key = allowedKeys[e.keyCode];
+        // get the value of the required key from the konami code
+        var requiredKey = konamiCode[konamiCodePosition];
+
+        // compare the key with the required key
+        if (key == requiredKey) {
+
+            // move to the next key in the konami code sequence
+            konamiCodePosition++;
+
+            // if the last key is reached, activate cheats
+            if (konamiCodePosition == konamiCode.length) {
+            resetPosts();
+            konamiCodePosition = 0;
+            }
+        } else {
+            konamiCodePosition = 0;
+        }
+    });
+
+    function resetPosts() {
+        writeData("[]", localStorage.getItem("sender"))
+    }
 </script>
