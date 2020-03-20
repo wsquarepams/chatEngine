@@ -1,5 +1,5 @@
 <head>
-    <title>Chat engine!</title>
+    <title>Chat engine</title>
 
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-app.js"></script>
@@ -126,12 +126,12 @@
         }
     </style>
 </head>
-<h1>Chat with someone else!</h1>
+<h1>Chat with other people online</h1>
 <div class="column" id="cards"></div>
 <input type="text" id="messageSending" placeholder="Type your message here!"> <br>
 <input type="text" id="sender" placeholder="Your name!"> <br>
 <button onclick="send()" class="button" id="sendButton"><span>Send!</span></button> <br> <br>
-<small>Version 1.4.8.7</small> <br> 
+<small>Version 1.5</small> <br> 
 <small>Your message must be non-empty strings and can't contain ".", "#", "$", "[", or "]"</small>
 <script>
     var currentId = 0
@@ -161,7 +161,6 @@
                     var theNodeInsideNode = document.createElement('div')
                     var somethingThatStoppedFollowingThePattern = document.createElement('div')
                     var theNodeInsideTheNodeInsideNode = document.createTextNode(messages[keys[i]].message)
-                    console.log(theNodeInsideTheNodeInsideNode)
                     node.className = "row"
                     theNodeInsideNode.className = "card"
                     somethingThatStoppedFollowingThePattern.innerHTML = "<br> <small> Sender:" + messages[keys[i]].sender + "</small>"
@@ -170,9 +169,14 @@
                     node.appendChild(theNodeInsideNode)
                     cards.appendChild(node)
                 }
-                currentId = i + 1
+                currentId = parseInt(keys.length)
+                if (currentId == NaN || currentId == undefined) {
+                    currentId = 0
+                }
+                console.log("currentId: " + currentId)
             } else {
                 cards.innerHTML = messages
+                currentId = 0
             }
         });
     }
@@ -189,13 +193,17 @@
                 sender = localStorage.getItem("sender")
             }
             if (message == "" || sender == "") {
-                alert("Please enter all your information")
+                alert("Please fill in all fields")
             } else {
-                writeData(message, sender)
-                sends = (parseInt(sends) - 1).toString()
-                localStorage.setItem("sendsLeft", sends)
-                console.log(sends)
-                document.getElementById("messageSending").value = ""
+                if (!message.includes(".") || message.includes("#") || message.includes("$") || message.includes("[") || message.includes("]") || message == "") {
+                    writeData(message, sender)
+                    sends = (parseInt(sends) - 1).toString()
+                    localStorage.setItem("sendsLeft", sends)
+                    console.log("sends:" + sends)
+                    document.getElementById("messageSending").value = ""
+                } else {
+                    alert('Your message can\'t contain ".", "#", "$", "[", or "]"')
+                }
             }
             
             if (localStorage.getItem("sender")) {
@@ -224,7 +232,23 @@
     }
     
     function init() {
-        console.log(localStorage.getItem("sendsLeft"))
+        console.log("Sends left:" + localStorage.getItem("sendsLeft"))
+        var currentdate = new Date().getTime();
+        var nextDate = localStorage.getItem("resetTime")
+        if (nextDate != "[object Undefined]" && nextDate != null && nextDate != undefined && nextDate != NaN) {
+            if (currentdate >= nextDate) {
+                localStorage.setItem("sendsLeft", "60")
+                localStorage.removeItem("resetTime")
+                location.reload()
+            }
+        } else {
+            const ONE_HOUR = 60 * 60 * 1000
+            nextDate = currentdate + ONE_HOUR;
+            console.log(currentdate)
+            console.log(nextDate)
+            localStorage.setItem("resetTime", nextDate)
+            setInterval(function() {init()}, 1200000)
+        }
         if (localStorage.getItem("sendsLeft") != "[object Undefined]" && localStorage.getItem("sendsLeft") != null && localStorage.getItem("sendsLeft") != undefined && localStorage.getItem("sendsLeft") != NaN) {
             if (localStorage.getItem("sendsLeft") == "1") {
                 readData()
@@ -292,15 +316,11 @@
         37: 'left',
         38: 'up',
         39: 'right',
-        40: 'down',
-        114: 'r',
-        101: 'e',
-        115: 's',
-        116: 't'
+        40: 'down'
     };
 
     // the 'official' Konami Code sequence
-    var konamiCode = ['up', 'up', 'down', 'down', 'left', 'right', 'left', 'right', 'r', 'e', 's', 'e', 't'];
+    var konamiCode = ['up', 'up', 'down', 'down', 'left', 'right', 'left', 'right'];
 
     // a variable to remember the 'position' the user has reached so far.
     var konamiCodePosition = 0;
@@ -320,8 +340,8 @@
 
             // if the last key is reached, activate cheats
             if (konamiCodePosition == konamiCode.length) {
-            resetPosts();
-            konamiCodePosition = 0;
+                resetPosts();
+                konamiCodePosition = 0;
             }
         } else {
             konamiCodePosition = 0;
@@ -329,6 +349,6 @@
     });
 
     function resetPosts() {
-        writeData("[]", localStorage.getItem("sender"))
+        database.ref("/messages").remove()
     }
 </script>
