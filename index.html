@@ -126,12 +126,12 @@
         }
     </style>
 </head>
-<h1>Chat with other people online</h1>
+<center> <h1>Chat with other people online</h1> </center>
 <div class="column" id="cards"></div>
 <input type="text" id="messageSending" placeholder="Type your message here!"> <br>
 <input type="text" id="sender" placeholder="Your name!"> <br>
 <button onclick="send()" class="button" id="sendButton"><span>Send!</span></button> <br> <br>
-<small>Version 1.5</small> <br> 
+<small id="version">Version 1.5</small> <br> 
 <small>Your message must be non-empty strings and can't contain ".", "#", "$", "[", or "]"</small>
 <script>
     var currentId = 0
@@ -226,6 +226,10 @@
     
     function init() {
         console.log("Sends left:" + localStorage.getItem("sendsLeft"))
+        database.ref("/version").on("value", function(snapshot) {
+            var version = snapshot.val() || "Unknown"
+            document.getElementById("version").innerHTML = "Version " + version
+        })
         var currentdate = new Date().getTime();
         var nextDate = localStorage.getItem("resetTime")
         if (nextDate != "[object Undefined]" && nextDate != null && nextDate != undefined && nextDate != NaN) {
