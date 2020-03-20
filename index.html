@@ -217,13 +217,6 @@
 
     function checkChancesLeft() {
         if (localStorage.getItem("sendsLeft") == "0") {
-            var currentdate = new Date().getTime();
-            var nextDate = localStorage.getItem("resetTime")
-            const ONE_HOUR = 60 * 60 * 1000
-            nextDate = currentdate + ONE_HOUR;
-            console.log(currentdate)
-            console.log(nextDate)
-            localStorage.setItem("resetTime", nextDate)
             setInterval(function() {init()}, 1200000)
             document.getElementById("sendButton").className = "disabled"
             document.getElementById("sendButton").innerHTML = "Max send limit reached. <br> Try again in a hour."
