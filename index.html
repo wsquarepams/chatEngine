@@ -136,7 +136,7 @@
 <input type="text" id="sender" placeholder="Your name!"> <br>
 <button onclick="send()" class="button" id="sendButton"><span>Send!</span></button> <br> <br>
 <small id="version">Version Unknown</small> <br> 
-<small>Your message must be non-empty strings and can't contain ".", "#", "$", "[", or "]"</small>
+<small>Your message must be non-empty strings.</small>
 <script>
     var currentId = 0
     function writeData(message, sender) {
@@ -199,15 +199,11 @@
             if (message == "" || sender == "") {
                 alert("Please fill in all fields")
             } else {
-                if (!message.includes(".") || message.includes("#") || message.includes("$") || message.includes("[") || message.includes("]") || message == "") {
-                    writeData(message, sender)
-                    sends = (parseInt(sends) - 1).toString()
-                    localStorage.setItem("sendsLeft", sends)
-                    console.log("sends:" + sends)
-                    document.getElementById("messageSending").value = ""
-                } else {
-                    alert('Your message can\'t contain ".", "#", "$", "[", or "]"')
-                }
+                writeData(message, sender)
+                sends = (parseInt(sends) - 1).toString()
+                localStorage.setItem("sendsLeft", sends)
+                console.log("sends:" + sends)
+                document.getElementById("messageSending").value = ""
             }
             
             if (localStorage.getItem("sender")) {
