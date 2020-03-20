@@ -230,7 +230,7 @@
     
     function init() {
         console.log("Sends left:" + localStorage.getItem("sendsLeft"))
-        database.ref("/version").on("value", function(snapshot) {
+        database.ref("/version").once("value").then(function(snapshot) {
             var version = snapshot.val() || "Unknown"
             document.getElementById("version").innerHTML = "Version " + version
         })
