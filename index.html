@@ -232,7 +232,7 @@
         <input type="text" id="sender" class="fullScreenWidth" placeholder="Your name!"> <br>
         <button onclick="send()" class="button fullScreenWidth" id="sendButton"><span>Send!</span></button> <br> <br>
         <div id="alerts"></div>
-        <small id="version">Version 1.8 (Alerts update)</small> <br>
+        <small id="version">Version 1.8.1</small> <br>
         <small>Your message must be non-empty strings.</small>
     </div>
 </body>
@@ -418,7 +418,7 @@
                 document.getElementById("messageSending").value = ""
             }
 
-            if (localStorage.getItem("sender")) {
+            if (localStorage.getItem("sender") === null) {
                 createAlert("info", "Your sender tag has been set to " + sender)
                 document.getElementById("sender").hidden = true
             }
