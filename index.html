@@ -23,6 +23,7 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         var database = firebase.database();
+
     </script>
 
     <style>
@@ -83,15 +84,17 @@
             right: 0;
         }
 
-         /* Float four columns side by side */
-         .column {
+        /* Float four columns side by side */
+        .column {
             float: left;
             width: 100%;
             /* padding: 0 10px; */
         }
 
         /* Remove extra left and right margins, due to padding */
-        .row {margin: 0 -5px;}
+        .row {
+            margin: 0 -5px;
+        }
 
         /* Clear floats after the columns */
         .row:after {
@@ -114,7 +117,8 @@
             /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); */
             padding: 20px;
             text-align: center;
-            background-color: #ffffff;e: 25px;
+            background-color: #ffffff;
+            e: 25px;
             font-size: 30px;
         }
 
@@ -128,23 +132,24 @@
         .adminCard {
             padding: 20px;
             text-align: center;
-            background-color: #b8f1ff50;e: 25px;
+            background-color: #b8f1ff50;
+            e: 25px;
             font-size: 30px;
         }
 
         .bottomAnchor {
-            position:fixed;
-            bottom:0px;
-            width:100%;
-            margin:0px;
+            position: fixed;
+            bottom: 0px;
+            width: 100%;
+            margin: 0px;
             background-color: #ffffff;
         }
 
         .topAnchor {
-            position:fixed;
-            top:0px;
-            width:100%;
-            margin:0px;
+            position: fixed;
+            top: 0px;
+            width: 100%;
+            margin: 0px;
             background-color: #ffffff;
         }
 
@@ -155,21 +160,186 @@
         * {
             box-sizing: border-box
         }
+
+        /* The alert message box */
+        .danger {
+            padding: 20px;
+            background-color: red;
+            /* Red */
+            color: white;
+            margin-bottom: 15px;
+            opacity: 1;
+            transition: opacity 0.6s;
+        }
+
+        .warning {
+            padding: 20px;
+            background-color: yellow;
+            /* Yellow */
+            color: black;
+            margin-bottom: 15px;
+            opacity: 1;
+            transition: opacity 0.6s;
+        }
+
+        .success {
+            padding: 20px;
+            background-color: green;
+            /* Yellow */
+            color: white;
+            margin-bottom: 15px;
+            opacity: 1;
+            transition: opacity 0.6s;
+        }
+
+        .info {
+            padding: 20px;
+            background-color: blue;
+            /* Yellow */
+            color: white;
+            margin-bottom: 15px;
+            opacity: 1;
+            transition: opacity 0.6s;
+        }
+
+        /* The close button */
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        /* When moving the mouse over the close button */
+        .closebtn:hover {
+            color: black;
+        }
+
     </style>
 </head>
+
 <body>
-    <center> <h1 class="topAnchor">Chat with other people online</h1> </center>
+    <center>
+        <h1 class="topAnchor">Chat with other people online</h1>
+    </center>
     <div class="column" id="cards"></div>
     <div class="bottomAnchor fullScreenWidth">
         <input type="text" id="messageSending" placeholder="Type your message here!" class="fullScreenWidth"> <br>
-        <input type="text" id="sender" placeholder="Your name!"> <br>
+        <input type="text" id="sender" class="fullScreenWidth" placeholder="Your name!"> <br>
         <button onclick="send()" class="button fullScreenWidth" id="sendButton"><span>Send!</span></button> <br> <br>
-        <small id="version">Version 1.7.5</small> <br> 
+        <div id="alerts"></div>
+        <small id="version">Version 1.8 (Alerts update)</small> <br>
         <small>Your message must be non-empty strings.</small>
     </div>
 </body>
 <script>
     var currentId = 0
+
+    function init() {
+        console.log("Sends left:" + localStorage.getItem("sendsLeft"))
+        var currentdate = new Date().getTime();
+        var nextDate = localStorage.getItem("resetTime")
+        if (nextDate != "[object Undefined]" && nextDate != null && nextDate != undefined && nextDate != NaN) {
+            if (currentdate >= nextDate) {
+                localStorage.setItem("sendsLeft", "60")
+                localStorage.removeItem("resetTime")
+                location.reload()
+            }
+        } else {
+            const ONE_HOUR = 60 * 60 * 1000
+            nextDate = currentdate + ONE_HOUR;
+            console.log(currentdate)
+            console.log(nextDate)
+            localStorage.setItem("resetTime", nextDate)
+            setInterval(function () {
+                init()
+            }, 1200000)
+        }
+        if (localStorage.getItem("sendsLeft") != "[object Undefined]" && localStorage.getItem("sendsLeft") != null &&
+            localStorage.getItem("sendsLeft") != undefined && localStorage.getItem("sendsLeft") != NaN) {
+            if (localStorage.getItem("sendsLeft") == "1") {
+                readData()
+                document.getElementById("sendButton").innerHTML = "You have 1 send left."
+                createAlert("warning", "You have 1 send left")
+                document.getElementById("sendButton").style = "cursor: not-allowed"
+                document.getElementById("sendButton").onclick = function () {}
+                setTimeout(function () {
+                    document.getElementById("sendButton").innerHTML = "<span>Send</span>"
+                    document.getElementById("sendButton").style = "cursor: pointer"
+                    document.getElementById("sendButton").onclick = function () {
+                        send()
+                    }
+                }, 2500)
+            } else if (localStorage.getItem("sendsLeft") == "0") {
+                var currentdate = new Date().getTime();
+                var nextDate = localStorage.getItem("resetTime")
+                if (nextDate != "[object Undefined]" && nextDate != null && nextDate != undefined && nextDate != NaN) {
+                    if (currentdate >= nextDate) {
+                        localStorage.setItem("sendsLeft", "60")
+                        localStorage.removeItem("resetTime")
+                        location.reload()
+                    }
+                } else {
+                    const ONE_HOUR = 60 * 60 * 1000
+                    nextDate = currentdate + ONE_HOUR;
+                    console.log(currentdate)
+                    console.log(nextDate)
+                    localStorage.setItem("resetTime", nextDate)
+                    setInterval(function () {
+                        init()
+                    }, 1200000)
+                }
+
+                document.getElementById("sendButton").className = "disabled"
+                document.getElementById("sendButton").innerHTML = "Max send limit reached. <br> Try again in a hour."
+                createAlert("danger", "Max send limit reached")
+                document.getElementById("sendButton").onclick = function () {}
+
+
+            } else {
+                readData()
+                document.getElementById("sendButton").innerHTML = "You have " + (parseInt(localStorage.getItem(
+                    "sendsLeft"))) + " sends left."
+                document.getElementById("sendButton").style = "cursor: not-allowed"
+                document.getElementById("sendButton").onclick = function () {}
+                setTimeout(function () {
+                    document.getElementById("sendButton").innerHTML = "<span>Send</span>"
+                    document.getElementById("sendButton").style = "cursor: pointer"
+                    document.getElementById("sendButton").onclick = function () {
+                        send()
+                    }
+
+                }, 2500)
+            }
+
+            if (localStorage.getItem("sender")) {
+                document.getElementById("sender").hidden = true
+            }
+        } else {
+            localStorage.setItem("sendsLeft", "60")
+            location.reload()
+        }
+
+        // Get the input field
+        var input = document.getElementById("messageSending");
+
+        // Execute a function when the user releases a key on the keyboard
+        input.addEventListener("keyup", function (event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                document.getElementById("sendButton").click();
+            }
+        });
+
+    }
+
     function writeData(message, sender) {
         //database.ref("messages/").remove()
         database.ref('messages/' + currentId).set({
@@ -177,14 +347,14 @@
             message: message
         });
         localStorage.setItem("sender", sender)
-        setTimeout(function() {
+        setTimeout(function () {
             document.getElementById("sender").hidden = true
             readData()
         }, 10)
     }
-    
+
     function readData() {
-        database.ref('/messages/').on('value', function(snapshot) {
+        database.ref('/messages/').on('value', function (snapshot) {
             var cards = document.getElementById("cards")
             cards.innerHTML = ""
             var blockElement = document.createElement('div')
@@ -204,7 +374,8 @@
                     if (messages[keys[i]].adminMessage) {
                         theNodeInsideNode.className = "adminCard"
                     }
-                    somethingThatStoppedFollowingThePattern.innerHTML = "<br> <small> Sender:" + messages[keys[i]].sender + "</small>"
+                    somethingThatStoppedFollowingThePattern.innerHTML = "<br> <small> Sender:" + messages[keys[
+                        i]].sender + "</small>"
                     theNodeInsideNode.appendChild(theNodeInsideTheNodeInsideNode)
                     theNodeInsideNode.appendChild(somethingThatStoppedFollowingThePattern)
                     node.appendChild(theNodeInsideNode)
@@ -222,23 +393,23 @@
                 cards.innerHTML = messages
                 currentId = 0
             }
-            window.scrollTo(0,document.body.scrollHeight);
+            window.scrollTo(0, document.body.scrollHeight);
         });
     }
 
     function send() {
         var sends = localStorage.getItem("sendsLeft")
         sends = parseInt(sends)
-        
+
         if (sends > 0) {
             var message = document.getElementById("messageSending").value
             var sender = document.getElementById("sender").value
-            
+
             if (localStorage.getItem("sender")) {
                 sender = localStorage.getItem("sender")
             }
             if (message == "" || sender == "") {
-                alert("Please fill in all fields")
+                createAlert("warning", "Your message cannot be emtpy.")
             } else {
                 writeData(message, sender)
                 sends = (parseInt(sends) - 1).toString()
@@ -246,114 +417,36 @@
                 console.log("sends:" + sends)
                 document.getElementById("messageSending").value = ""
             }
-            
+
             if (localStorage.getItem("sender")) {
+                createAlert("info", "Your sender tag has been set to " + sender)
                 document.getElementById("sender").hidden = true
             }
             checkChancesLeft()
         } else {
-            alert("You've reached your max send limit.")
+            createAlert("danger", "You've reached your send limit.")
         }
     }
 
     function checkChancesLeft() {
         if (localStorage.getItem("sendsLeft") == "0") {
-            setInterval(function() {init()}, 1200000)
+            setInterval(function () {
+                init()
+            }, 1200000)
+            createAlert("danger", "You have run out of sends.")
             document.getElementById("sendButton").className = "disabled"
             document.getElementById("sendButton").innerHTML = "Max send limit reached. <br> Try again in a hour."
-            document.getElementById("sendButton").onclick = function() {}
+            document.getElementById("sendButton").onclick = function () {}
         }
     }
-    
-    function init() {
-        console.log("Sends left:" + localStorage.getItem("sendsLeft"))
-        var currentdate = new Date().getTime();
-        var nextDate = localStorage.getItem("resetTime")
-        if (nextDate != "[object Undefined]" && nextDate != null && nextDate != undefined && nextDate != NaN) {
-            if (currentdate >= nextDate) {
-                localStorage.setItem("sendsLeft", "60")
-                localStorage.removeItem("resetTime")
-                location.reload()
-            }
-        } else {
-            const ONE_HOUR = 60 * 60 * 1000
-            nextDate = currentdate + ONE_HOUR;
-            console.log(currentdate)
-            console.log(nextDate)
-            localStorage.setItem("resetTime", nextDate)
-            setInterval(function() {init()}, 1200000)
-        }
-        if (localStorage.getItem("sendsLeft") != "[object Undefined]" && localStorage.getItem("sendsLeft") != null && localStorage.getItem("sendsLeft") != undefined && localStorage.getItem("sendsLeft") != NaN) {
-            if (localStorage.getItem("sendsLeft") == "1") {
-                readData()
-                alert("You have 1 send left.")
-                document.getElementById("sendButton").innerHTML = "You have 1 send left."
-                document.getElementById("sendButton").style = "cursor: not-allowed"
-                document.getElementById("sendButton").onclick = function() {}
-                setTimeout(function() {
-                    document.getElementById("sendButton").innerHTML = "<span>Send</span>"
-                    document.getElementById("sendButton").style = "cursor: pointer"
-                    document.getElementById("sendButton").onclick = function() {send()}
-                }, 2500)
-            } else if (localStorage.getItem("sendsLeft") == "0") {
-                var currentdate = new Date().getTime();
-                var nextDate = localStorage.getItem("resetTime")
-                if (nextDate != "[object Undefined]" && nextDate != null && nextDate != undefined && nextDate != NaN) {
-                    if (currentdate >= nextDate) {
-                        localStorage.setItem("sendsLeft", "60")
-                        localStorage.removeItem("resetTime")
-                        location.reload()
-                    }
-                } else {
-                    const ONE_HOUR = 60 * 60 * 1000
-                    nextDate = currentdate + ONE_HOUR;
-                    console.log(currentdate)
-                    console.log(nextDate)
-                    localStorage.setItem("resetTime", nextDate)
-                    setInterval(function() {init()}, 1200000)
-                }
 
-                document.getElementById("sendButton").className = "disabled"
-                document.getElementById("sendButton").innerHTML = "Max send limit reached. <br> Try again in a hour."
-                document.getElementById("sendButton").onclick = function() {}
-                
-                
-            } else {
-                readData()
-                document.getElementById("sendButton").innerHTML = "You have " + (parseInt(localStorage.getItem("sendsLeft"))) + " sends left."
-                document.getElementById("sendButton").style = "cursor: not-allowed"
-                document.getElementById("sendButton").onclick = function() {}
-                setTimeout(function() {
-                    document.getElementById("sendButton").innerHTML = "<span>Send</span>"
-                    document.getElementById("sendButton").style = "cursor: pointer"
-                    document.getElementById("sendButton").onclick = function() {send()}
-                    
-                }, 2500)
-            }
-
-            if (localStorage.getItem("sender")) {
-                document.getElementById("sender").hidden = true
-            }
-        } else {
-            localStorage.setItem("sendsLeft", "60")
-            location.reload()
-        }
-
-        // Get the input field
-        var input = document.getElementById("messageSending");
-
-        // Execute a function when the user releases a key on the keyboard
-        input.addEventListener("keyup", function(event) {
-        // Number 13 is the "Enter" key on the keyboard
-        if (event.keyCode === 13) {
-            // Cancel the default action, if needed
-            event.preventDefault();
-            // Trigger the button element with a click
-            document.getElementById("sendButton").click();
-        }
-        });
-        
+    function createAlert(type, message) {
+        var alertDisplay = document.getElementById("alerts")
+        alertDisplay.insertAdjacentHTML("afterend", "<div class=\"" + type +
+            "\"> <span class=\"closebtn\" onclick=\"this.parentElement.style.display='none';\">&times;</span> " +
+            message + " </div>") 
     }
-    
+
     init()
+
 </script>
