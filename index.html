@@ -409,7 +409,7 @@
                 sender = localStorage.getItem("sender")
             }
             if (message == "" || sender == "") {
-                createAlert("warning", "Your message cannot be emtpy.")
+                createAlert("warning", "Your message cannot be empty.")
             } else {
                 writeData(message, sender)
                 sends = (parseInt(sends) - 1).toString()
@@ -444,7 +444,7 @@
         var alertDisplay = document.getElementById("alerts")
         alertDisplay.insertAdjacentHTML("afterend", "<div class=\"" + type +
             "\"> <span class=\"closebtn\" onclick=\"this.parentElement.style.display='none';\">&times;</span> " +
-            message + " </div>") 
+            message + " </div>")
     }
 
     init()
