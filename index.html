@@ -232,7 +232,7 @@
         <input type="text" id="sender" class="fullScreenWidth" placeholder="Your name!"> <br>
         <button onclick="send()" class="button fullScreenWidth" id="sendButton"><span>Send!</span></button> <br> <br>
         <div id="alerts"></div>
-        <small id="version">Version 1.8.2</small> <br>
+        <small id="version">Version 1.8.3</small> <br>
         <small>Your message must be non-empty strings.</small>
     </div>
 </body>
@@ -341,10 +341,13 @@
     }
 
     function writeData(message, sender) {
-        //database.ref("messages/").remove()
         database.ref('messages/' + currentId).set({
             sender: sender,
             message: message
+        }, function(error) {
+            if (error) {
+                createAlert('danger', error)
+            }
         });
         localStorage.setItem("sender", sender)
         setTimeout(function () {
